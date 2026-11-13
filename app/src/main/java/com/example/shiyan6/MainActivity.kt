@@ -1,47 +1,56 @@
 package com.example.shiyan6
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.shiyan6.ui.theme.Shiyan6Theme
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import com.example.shiyan6.fragment.InfoFragment
+import com.example.shiyan6.fragment.ThreeCardGameFragment
+import com.example.shiyan6.fragment.TwoCardGameFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            Shiyan6Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+        setContentView(R.layout.activity_main)
+
+        val nav = findViewById<BottomNavigationView>(R.id.bottom_nav)
+
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .add(R.id.fragment_container, InfoFragment(), TAG_INFO)
+                .add(R.id.fragment_container, TwoCardGameFragment(), TAG_GAME2)
+                .add(R.id.fragment_container, ThreeCardGameFragment(), TAG_GAME3)
+                .hide(fragmentByTag(TAG_GAME2))
+                .hide(fragmentByTag(TAG_GAME3))
+                .commit()
+        }
+
+        nav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_info -> showFragment(TAG_INFO)
+                R.id.nav_game2 -> showFragment(TAG_GAME2)
+                R.id.nav_game3 -> showFragment(TAG_GAME3)
             }
+            true
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    private fun fragmentByTag(tag: String): Fragment =
+        supportFragmentManager.findFragmentByTag(tag)!!
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Shiyan6Theme {
-        Greeting("Android")
+    private fun showFragment(tag: String) {
+        val tx = supportFragmentManager.beginTransaction()
+        tx.hide(fragmentByTag(TAG_INFO))
+        tx.hide(fragmentByTag(TAG_GAME2))
+        tx.hide(fragmentByTag(TAG_GAME3))
+        tx.show(fragmentByTag(tag))
+        tx.commit()
+    }
+
+    companion object {
+        private const val TAG_INFO = "info"
+        private const val TAG_GAME2 = "game2"
+        private const val TAG_GAME3 = "game3"
     }
 }
